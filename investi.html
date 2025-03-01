@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niveaux d'Investissement VIP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDIB-raa12rkzqxRhflOMLBwL4hBycTgmo",
+            authDomain: "coke-eea48.firebaseapp.com",
+            databaseURL: "https://coke-eea48-default-rtdb.firebaseio.com",
+            projectId: "coke-eea48",
+            storageBucket: "coke-eea48.firebasestorage.app",
+            messagingSenderId: "217366074971",
+            appId: "1:217366074971:web:948bdc5baeeea93fac117e"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        
+        // Add event listeners to investment buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const investButtons = document.querySelectorAll('.invest-button:not(.locked)');
+            investButtons.forEach((button) => {
+                button.addEventListener('click', function() {
+                    const card = this.closest('.investment-card');
+                    const level = card.getAttribute('data-level');
+                    const investment = parseFloat(card.getAttribute('data-investment'));
+                    const dailyReturn = parseFloat(card.getAttribute('data-daily'));
+                    const monthlyReturn = parseFloat(card.getAttribute('data-monthly'));
+                    const annualReturn = parseFloat(card.getAttribute('data-annual'));
+                    const hourlyReturn = parseFloat(card.getAttribute('data-hourly'));
+                    
+                    const user = auth.currentUser;
+                    
+                    if(user) {
+                        const userId = user.uid;
+                        
+                        // Get user balance from database
+                        const userRef = ref(database, 'users/' + userId);
+                        
+                        // Use get() to fetch the user data once
+                        get(userRef).then((snapshot) => {
+                            if (snapshot.exists()) {
+                                const userData = snapshot.val();
+                                const userBalance = userData.balance || 0;
+                                
+                                if (userBalance >= investment) {
+                                    // User has sufficient balance
+                                    const newBalance = userBalance - investment;
+                                    
+                                    // Update user balance
+                                    set(ref(database, 'users/' + userId + '/balance'), newBalance);
+                                    
+                                    // Record the investment
+                                    const levelData = {
+                                        level: level,
+                                        investment: investment,
+                                        hourlyReturn: hourlyReturn,
+                                        dailyReturn: dailyReturn,
+                                        monthlyReturn: monthlyReturn,
+                                        annualReturn: annualReturn,
+                                        timestamp: Date.now(),
+                                        status: 'active'
+                                    };
+                                    
+                                    set(ref(database, 'investments/' + userId + '/' + level), levelData)
+                                        .then(() => {
+                                            alert(`Votre investissement ${level} a été enregistré avec succès! Nouveau solde: ${newBalance} FCFA`);
+                                        })
+                                        .catch((error) => {
+                                            alert(`Erreur: ${error.message}`);
+                                        });
+                                } else {
+                                    // Insufficient balance
+                                    alert(`Solde insuffisant. Vous avez ${userBalance} FCFA mais l'investissement nécessite ${investment} FCFA.`);
+                                }
+                            } else {
+                                alert("Données utilisateur non trouvées. Veuillez contacter l'administrateur.");
+                            }
+                        }).catch((error) => {
+                            alert(`Erreur lors de la vérification du solde: ${error.message}`);
+                        });
+                    } else {
+                        alert("Veuillez vous connecter pour investir.");
+                    }
+                });
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #343a40;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        header {
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            background-color: #212529;
+            color: white;
+        }
+        .investment-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .investment-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            width: 280px;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            position: relative;
+            overflow: hidden;
+        }
+        .investment-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        .investment-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, #ff4d4d, #f9cb28);
+        }
+        .level {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f3f5;
+            text-align: center;
+        }
+        .detail {
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.95em;
+        }
+        .detail-value {
+            color: #212529;
+            font-weight: 700;
+            font-size: 1.05em;
+        }
+        .total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f1f3f5;
+            font-weight: 700;
+            font-size: 1.3em;
+            color: #212529;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total .detail-value {
+            color: #ff4d4d;
+            font-size: 1.2em;
+        }
+        .invest-button {
+            display: block;
+            width: 100%;
+            padding: 15px 0;
+            margin-top: 25px;
+            background: linear-gradient(90deg, #ff4d4d, #ff8080);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .invest-button:hover {
+            background: linear-gradient(90deg, #ff3333, #ff6666);
+            box-shadow: 0 7px 20px rgba(255, 77, 77, 0.4);
+            transform: translateY(-3px);
+        }
+        .invest-button:active {
+            transform: translateY(1px);
+        }
+        footer {
+            text-align: center;
+            margin-top: auto;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9em;
+            background-color: #212529;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .locked {
+            background: #d1d1d1 !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+        }
+        .locked:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .lock-icon {
+            font-size: 40px;
+            color: #868e96;
+        }
+        .coming-soon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 77, 77, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            z-index: 11;
+        }
+        @media (max-width: 768px) {
+            .investment-container {
+                padding: 10px;
+            }
+            .investment-card {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Niveaux d'Investissement VIP</h1>
+    </header>
+    
+    <div class="investment-container">
+        <!-- VIP1 -->
+        <div class="investment-card" data-level="VIP1" data-investment="5000" data-hourly="15.11" data-daily="362.64" data-monthly="10879.2" data-annual="132363.6">
+            <div class="level">VIP1</div>
+            <div class="detail">
+                <span class="detail-label">Investissement initial:</span>
+                <span class="detail-value">5 000 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Gain horaire:</span>
+                <span class="detail-value">15,11 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu journalier:</span>
+                <span class="detail-value">362,64 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu mensuel:</span>
+                <span class="detail-value">10 879,2 FCFA</span>
+            </div>
+            <div class="total">
+                <span class="detail-label">Revenu annuel:</span>
+                <span class="detail-value">132 363,6 FCFA</span>
+            </div>
+            <button class="invest-button">INVESTIR</button>
+        </div>
+        
+        <!-- VIP2 -->
+        <div class="investment-card" data-level="VIP2" data-investment="10000" data-hourly="30.26" data-daily="726.24" data-monthly="21787.2" data-annual="265077.6">
+            <div class="level">VIP2</div>
+            <div class="detail">
+                <span class="detail-label">Investissement initial:</span>
+                <span class="detail-value">10 000 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Gain horaire:</span>
+                <span class="detail-value">30,26 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu journalier:</span>
+                <span class="detail-value">726,24 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu mensuel:</span>
+                <span class="detail-value">21 787,2 FCFA</span>
+            </div>
+            <div class="total">
+                <span class="detail-label">Revenu annuel:</span>
+                <span class="detail-value">265 077,6 FCFA</span>
+            </div>
+            <button class="invest-button">INVESTIR</button>
+        </div>
+        
+        <!-- VIP3 -->
+        <div class="investment-card" data-level="VIP3" data-investment="20000" data-hourly="60.2" data-daily="1444.8" data-monthly="43344" data-annual="527688">
+            <div class="level">VIP3</div>
+            <div class="detail">
+                <span class="detail-label">Investissement initial:</span>
+                <span class="detail-value">20 000 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Gain horaire:</span>
+                <span class="detail-value">60,2 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu journalier:</span>
+                <span class="detail-value">1 444,8 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu mensuel:</span>
+                <span class="detail-value">43 344 FCFA</span>
+            </div>
+            <div class="total">
+                <span class="detail-label">Revenu annuel:</span>
+                <span class="detail-value">527 688 FCFA</span>
+            </div>
+            <button class="invest-button">INVESTIR</button>
+        </div>
+        
+        <!-- VIP4 -->
+        <div class="investment-card" data-level="VIP4" data-investment="75000" data-hourly="185.05" data-daily="4441.2" data-monthly="133236" data-annual="1621038">
+            <div class="level">VIP4</div>
+            <div class="detail">
+                <span class="detail-label">Investissement initial:</span>
+                <span class="detail-value">75 000 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Gain horaire:</span>
+                <span class="detail-value">185,05 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu journalier:</span>
+                <span class="detail-value">4 441,2 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu mensuel:</span>
+                <span class="detail-value">133 236 FCFA</span>
+            </div>
+            <div class="total">
+                <span class="detail-label">Revenu annuel:</span>
+                <span class="detail-value">1 621 038 FCFA</span>
+            </div>
+            <button class="invest-button">INVESTIR</button>
+        </div>
+        
+        <!-- VIP5 - LOCKED -->
+        <div class="investment-card">
+            <div class="locked-overlay">
+                <span class="coming-soon">Bientôt disponible</span>
+                <i class="fas fa-lock lock-icon"></i>
+            </div>
+            <div class="level">VIP5</div>
+            <div class="detail">
+                <span class="detail-label">Investissement initial:</span>
+                <span class="detail-value">150 000 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Gain horaire:</span>
+                <span class="detail-value">385,46 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu journalier:</span>
+                <span class="detail-value">9 251,04 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu mensuel:</span>
+                <span class="detail-value">277 531,2 FCFA</span>
+            </div>
+            <div class="total">
+                <span class="detail-label">Revenu annuel:</span>
+                <span class="detail-value">3 376 629,6 FCFA</span>
+            </div>
+            <button class="invest-button locked">BIENTÔT DISPONIBLE</button>
+        </div>
+        
+        <!-- VIP6 - LOCKED -->
+        <div class="investment-card">
+            <div class="locked-overlay">
+                <span class="coming-soon">Bientôt disponible</span>
+                <i class="fas fa-lock lock-icon"></i>
+            </div>
+            <div class="level">VIP6</div>
+            <div class="detail">
+                <span class="detail-label">Investissement initial:</span>
+                <span class="detail-value">250 000 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Gain horaire:</span>
+                <span class="detail-value">500 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu journalier:</span>
+                <span class="detail-value">12 000 FCFA</span>
+            </div>
+            <div class="detail">
+                <span class="detail-label">Revenu mensuel:</span>
+                <span class="detail-value">360 000 FCFA</span>
+            </div>
+            <div class="total">
+                <span class="detail-label">Revenu annuel:</span>
+                <span class="detail-value">4 380 000 FCFA</span>
+            </div>
+            <button class="invest-button locked">BIENTÔT DISPONIBLE</button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Les informations présentées sont à titre informatif uniquement.</p>
+    </footer>
+</body>
+</html>

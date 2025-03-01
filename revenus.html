@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Investissements</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: #f0f2f5;
+        }
+        
+        .header {
+            width: 100%;
+            background: linear-gradient(to right, #1e88e5, #42a5f5);
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 15px;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 15px 20px;
+        }
+        
+        .card {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 12px;
+            padding: 18px 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .white-card {
+            background-color: white;
+        }
+        
+        .blue-card {
+            background: linear-gradient(to right, #1e88e5, #42a5f5);
+            color: white;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            color: #67757c;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .blue-card .card-title {
+            color: white;
+        }
+        
+        .card-value {
+            font-size: 30px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .details-container {
+            position: relative;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .detail-label {
+            font-size: 16px;
+            color: #67757c;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            color: #263238;
+            font-weight: bold;
+            text-align: right;
+        }
+        
+        .vip-badge {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 50px;
+            height: 50px;
+            background-color: #2196f3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            z-index: 10;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #2196f3;
+            width: 15%;
+        }
+        
+        .red-text {
+            color: #e53935;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Mes Investissements</h1>
+    </div>
+    
+    <div class="container">
+        <!-- Produits actifs -->
+        <div class="card white-card">
+            <div class="card-title">Produits actifs</div>
+            <div class="card-value">2</div>
+        </div>
+        
+        <!-- Solde disponible -->
+        <div class="card blue-card">
+            <div class="card-title">Solde disponible</div>
+            <div class="card-value">500 FCFA</div>
+        </div>
+        
+        <!-- Bénéfice total -->
+        <div class="card white-card">
+            <div class="card-title">Bénéfice total</div>
+            <div class="card-value">52.286 FCFA</div>
+        </div>
+        
+        <!-- Détails -->
+        <div class="card white-card details-container">
+            <!-- VIP Badge -->
+            <div class="vip-badge">VIP3</div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Initial:</div>
+                <div class="detail-value">20 000 FCFA</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Revenu/jour:</div>
+                <div class="detail-value">1 444,8  FCFA</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Jours restants:</div>
+                <div class="detail-value">360</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Gagné:</div>
+                <div class="detail-value"> FCFA</div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Total:</div>
+                <div class="detail-value red-text">4.332 FCFA</div>
+            </div>
+            
+         
+            
+            
+        </div>
+        
+         <!-- Détails -->
+        <div class="card white-card details-container">
+            <!-- VIP Badge -->
+            <div class="vip-badge">VIP4</div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Initial:</div>
+                <div class="detail-value">75 000 FCFA</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Revenu/jour:</div>
+                <div class="detail-value">4 441,2   FCFA</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Jours restants:</div>
+                <div class="detail-value">360</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Gagné:</div>
+                <div class="detail-value"> FCFA</div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Total:</div>
+                <div class="detail-value red-text">13.332 FCFA</div>
+            </div>
+            
+    </div>
+</body>
+</html>
